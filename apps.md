@@ -53,7 +53,7 @@ Another good example would be to look at how this is done in our [test app](http
 The contexts of the token once decoded will look something like this:
 ```JSON
 [
-  {"data": {account_id:9}, "exp": 1594737582},
+  {"data": {"account_id":9}, "exp": 1594737582},
   {"typ": "JWT", "alg": "HS256"}
 ]
 ```
