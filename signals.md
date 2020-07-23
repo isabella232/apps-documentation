@@ -24,6 +24,12 @@ When that 1 transmission is processed, it will retrieve the lesson record in que
 
 One exception to this is context. Context, when passed to an action, is a part of what makes a transmission unique. If two signals are triggered with identical arguments but different context, they will not be de duplicated. If the context matches exactly along with all the arguments, they will be eligible for de de-duplication. Where there is unique context, we want to preserve that and not have it lost.
 
+## Context
+
+Context supplied to signals allows us to supply data from the moment the signal is called, rather than the default which is to build the payload just in time before sending.
+
+In general, try to use context sparingly. As much as possible we don't want to block the operation that is triggering the signal and would rather gather data in the background. Additionally, as noted above, signals with different context cannot be de-duplicated which is a downside that we want to avoid when we can.
+
 ## Signal Creation
 
 Signals are defined in the `app/signals/` directory. A signal contains one or more actions that are grouped around an object and use case. Apps can choose to subscribe to signals that fit their use case. Keep this in mind when writing a signal; any given signal should attempt to represent a grouping of actions that we would imagine would be useful together given common use cases.
@@ -35,3 +41,52 @@ All signal names will end in `Signal`, for example `LessonEditingSignal`.
 In general it's best to process a record lazily when possible. What this means is that we should use `context` sparingly when creating our signals and allow as much as possible to be retrieved when building the payload during a transmission.
 
 # Signals Reference
+
+## Common Headers
+
+Every signal will be sent with a common set of headers related to the transmission:
+
+```
+"user-agent"=>"Demux"
+"content-type"=>"application/json"
+"content-length"=>"96"
+"x-demux-signal"=>"lesson_editing"
+"x-demux-signature"=>"0ef61eb9e64ab8f6f379540abedf1999a94b977c8555db4ed77e9f3c924962db"
+```
+user-agent is always going to be "Demux"
+
+x-demux-signal contains the name of the signal that's being sent
+
+x-demux-signature contains the signal body signed using the app's secret. You should verify the body of the signal using this upon receipt.
+
+## Signature
+
+The signature provided in the x-demux-signature header should be used to verify the contents of the signal before using it.
+
+The signature is create by taking the signal body and hashing it using HMAC and the "SHA256" algorithm.
+
+Here is an example in ruby for checking the signature:
+
+```Ruby
+received_signature == OpenSSL::HMAC.hexdigest("SHA256", app_secret, request_body)
+```
+
+## Lesson Editing (lesson_editing)
+
+### archive
+
+The archive action represents when the archive status of a lesson changes.
+
+#### Payload
+
+```JSON
+{
+  "action": "archive"
+  "company_id": Integer,
+  "lesson": {
+    "id": Integer,
+    "archived": Boolean,
+    "archived_at": String
+  }
+}
+```
