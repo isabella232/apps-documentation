@@ -55,11 +55,11 @@ Another good example would be to look at how this is done in our [test app](http
 The contexts of the token once decoded will look something like this:
 ```JSON
 [
-  {"data": {"account_id":9}, "exp": 1594737582},
+  {"data": {"account_id":9, "user_id":42}, "exp": 1594737582},
   {"typ": "JWT", "alg": "HS256"}
 ]
 ```
 
-Most of the contents of that token will be used to verify the JWT and make sure it hasn't expired. The "data" key contains the account_id, which is the lessonly company ID for the company that is installing the app. You can use the information in this data field to provision the newly installed account.
+Most of the contents of that token will be used to verify the JWT and make sure it hasn't expired. The "data" key contains the account_id, which is the lessonly company ID for the company that is installing the app and the ID of the user who launch from Lessonly as user_id. You can use the information in this data field to provision the newly installed account.
 
 
