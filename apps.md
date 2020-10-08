@@ -8,6 +8,7 @@ Creating a new app is a manual process right now. You first need to open a conso
 Demux::App.create(
   name: "Acme App",
   description: "A helpful description of my app",
+  account_types: ["company"],
   signal_url: "https://acme.com/webhooks",
   entry_url: "https://acme.com/configure",
   signals: ["test", "lesson_editing"]
@@ -19,6 +20,8 @@ Let's break down the arguments that we supplied.
 ***name*** - A user facing name that will be displayed for your app.
 
 ***description*** - A user facing description of what your app does.
+
+***account_types*** - What type of account should this app connect with when installed? It can be either "company" or "user"
 
 ***signal_url*** - The URL where signals will be posted for this app. See more on signals [here](signals.md)
 
@@ -55,11 +58,11 @@ Another good example would be to look at how this is done in our [test app](http
 The contexts of the token once decoded will look something like this:
 ```JSON
 [
-  {"data": {"account_id":9, "user_id":42}, "exp": 1594737582},
+  {"data": {"account_id":9, account_type:"company", "company_id": 9, "user_id":42}, "exp": 1594737582},
   {"typ": "JWT", "alg": "HS256"}
 ]
 ```
 
-Most of the contents of that token will be used to verify the JWT and make sure it hasn't expired. The "data" key contains the account_id, which is the lessonly company ID for the company that is installing the app and the ID of the user who launch from Lessonly as user_id. You can use the information in this data field to provision the newly installed account.
+Most of the contents of that token will be used to verify the JWT and make sure it hasn't expired. The "data" key contains the account_id, which is the ID of either a Lessonly Company or User that the connection is being made too, account_type which specifies if the connection is to a company or user account, company_id which contains the ID of the company this connection is within and user_id which contains the ID of the current user that is attempting to make the connection. You can use the information in this data field to provision the newly installed account.
 
 
